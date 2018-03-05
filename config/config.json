@@ -1,21 +1,21 @@
 {
   "development": {
-    "username": "paridhi",
-    "password": "root",
+    "username": "pairprog",
+    "password": "hello",
     "database": "quizdb",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "test": {
-    "username": "paridhi",
-    "password": "root",
+    "username": "pairprog",
+    "password": "hello",
     "database": "quizdb",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "production": {
-    "username": "paridhi",
-    "password": "root",
+    "username": "pairprog",
+    "password": "hello",
     "database": "quizdb",
     "host": "127.0.0.1",
     "dialect": "postgres"
