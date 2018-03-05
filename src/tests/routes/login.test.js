@@ -7,6 +7,7 @@ describe('Testing the hapi server for GET request', () => {
     Models.users.create({
       userName: 'Paridhi',
     }).then(() => {
+      console.log('BEFORE');
       done();
     });
   });
@@ -37,19 +38,19 @@ describe('Testing the hapi server for GET request', () => {
       done();
     });
   });
-  //   test('Should return New User Is Created for New users', (done) => {
-  //     const options = {
-  //       method: 'POST',
-  //       url: '/login',
-  //       payload: {
-  //         userName: 'Pari',
-  //       },
-  //     };
-  //     Server.inject(options, (response) => {
-  //       expect(response.result.value).toBe('New User Is Created');
-  //       done();
-  //     });
-  //   });
+  test('Should return New User Is Created for New users', (done) => {
+    const options = {
+      method: 'POST',
+      url: '/login',
+      payload: {
+        userName: 'Pari',
+      },
+    };
+    Server.inject(options, (response) => {
+      expect(response.result.value).toBe('New User Is Created');
+      done();
+    });
+  });
   afterAll((done) => {
     Models.users.destroy({
       where: { userName: 'Paridhi' },
