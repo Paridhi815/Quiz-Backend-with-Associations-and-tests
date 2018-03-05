@@ -10,6 +10,7 @@ module.exports = {
     },
     userName: {
       type: Sequelize.STRING,
+      unique: true,
     },
     score: {
       type: Sequelize.INTEGER,
