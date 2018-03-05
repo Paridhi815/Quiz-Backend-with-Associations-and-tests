@@ -1,6 +1,8 @@
 const Server = require('../../server');
 const Models = require('../../../models');
+const Sequelize = require('sequelize');
 
+const { Op } = Sequelize;
 
 describe('Testing the hapi server for GET request', () => {
   beforeAll((done) => {
@@ -53,7 +55,10 @@ describe('Testing the hapi server for GET request', () => {
   });
   afterAll((done) => {
     Models.users.destroy({
-      where: { userName: 'Paridhi' },
+      where: {
+        [Op.or]: [{ userName: 'Paridhi' },
+          { userName: 'Pari' }],
+      },
     }).then(() => {
       console.log('AFTER');
       done();

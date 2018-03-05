@@ -23,40 +23,32 @@ const userLogin = (userName) => {
   return modelPromise;
 };
 
-// const populateDb = () => {
-//     return rp(url1).then((result1) => {
-//         const obj = {};
-//         const questions = JSON.parse(result1);
-//         const promiseArray = [];
-//         for (let i = 0; i < questions.allQuestions.length; i += 1) {
-//           const url = `${url2}${questions.allQuestions[i].questionId}`;
-//           const correctAnswerPromise = rp(url);
-//           promiseArray.push(correctAnswerPromise);
-//           obj.qid = questions.allQuestions[i].questionId;
-//         }
-//         Promise.all(promiseArray).then((result2) => {
-//           for (let i = 0; i < result2.length; i += 1) {
-//             const answer = JSON.parse(result2[i]);
-//             obj.correctAnswer = answer.answer;
-//           }
-//           const optionObj = {};
-//           questions.allQuestions.forEach((question) => {
-//             const questionKeys = Object.keys(question);
-//             questionKeys.forEach((key) => {
-//               if (key.startsWith('option')) {
-//                 optionObj.key = key;
-//                 optionObj[key] = question.key;
-//               }
-//             });
-//           });
-//           const allQuestionsWithOptions = questions.allQuestions.map(question => ({
-//             qid: question.questionId,
-//             options: optionObj,
-//           }));
-//           console.log(allQuestionsWithOptions);
-//         });
-//       });
-// };
+const populateDb = () => {
+  const requestPromise = rp(url1).then((result1) => {
+    // const obj = {};
+    const questions = JSON.parse(result1);
+
+    const questionsArray = [];
+    questions.allQuestions.forEach((question) => {
+      const optionObj = {};
+      const questionWithOptionObject = {};
+      questionWithOptionObject.qid = question.questionId;
+      questionWithOptionObject.questionText = question.question;
+
+      const questionKeys = Object.keys(question);
+      questionKeys.forEach((key) => {
+        if (key.startsWith('option')) {
+          optionObj[key] = question[key];
+        }
+      });
+      questionWithOptionObject.options = optionObj;
+      questionsArray.push(questionWithOptionObject);
+    });
+    Models.questions.bulkCreate(questionsArray);
+    // console.log(allQuestionsWithOptions);
+  });
+  return requestPromise;
+};
 
 // const readDb = () => {
 
@@ -68,18 +60,16 @@ const userLogin = (userName) => {
 // }
 // };
 
-// const ifQuestionsInDb = () => {
-//   Models.questions.findAll().then((result) => {
-//     if (result.length === 0) {
-//       populateDb();
-//     } else {
-//       readDb();
-//     }
-//   });
-// };
+const ifQuestionsInDb = () => Models.questions.findAll().then((result) => {
+  if (result.length === 0) {
+    populateDb();
+  } else {
+    return 'Questions are already in database';
+  }
+});
 
 const handler = (request, response) => {
-  // check if user exists,if existes return user
+  // check if user exists,if exists return user
   // else create user and then return
   userLogin(request.payload.userName).then((value) => {
     response({
@@ -89,9 +79,9 @@ const handler = (request, response) => {
   });
   // check if questions in db,if there then return
   // else populate db
-//   ifQuestionsInDb().then((value) => {
-
-//   });
+  ifQuestionsInDb().then((value) => {
+    console.log('Value is', value);
+  });
   // check if ans there in db
   // else populate ans
   // get user answers
