@@ -1,5 +1,6 @@
 const Models = require('../../models');
 const rp = require('request-promise');
+const Joi = require('joi');
 
 const url1 = 'https://5gj1qvkc5h.execute-api.us-east-1.amazonaws.com/dev/allQuestions';
 const url2 = 'https://5gj1qvkc5h.execute-api.us-east-1.amazonaws.com/dev/findAnswerById/';
@@ -23,7 +24,7 @@ const userLogin = (userName) => {
   return modelPromise;
 };
 
-const populateDb = () => {
+const populateQuestionDb = () => {
   const requestPromise = rp(url1).then((result1) => {
     // const obj = {};
     const questions = JSON.parse(result1);
@@ -50,47 +51,93 @@ const populateDb = () => {
   return requestPromise;
 };
 
-// const readDb = () => {
+const populateAnswerDb = () => {
+  const modelPromise = Models.questions.findAll().then((allQuestions) => {
+    const promiseArray = [];
+    const obj = {};
+    const questionIdArray = [];
+    const questionWithnswer = [];
+    allQuestions.forEach((question) => {
+      const url = `${url2}${question.qid}`;
+      const correctAnswerPromise = rp(url);
+      promiseArray.push(correctAnswerPromise);
+      questionIdArray.push(question.qid);
+    });
+    Promise.all(promiseArray).then((result) => {
+      for (let i = 0; i < result.length; i += 1) {
+        const answer = JSON.parse(result[i]);
+        const questionId = questionIdArray[i];
+        questionWithnswer.push({
+          qid: questionId,
+          correctanswer: answer.answer,
+        });
+      }
+      Models.correctanswers.bulkCreate(questionWithnswer);
+    });
+    // });
+  });
+  return modelPromise;
+};
 
-
-// const questionObj={
-//     questionText:
-//     qid:
-//     options:
-// }
-// };
 
 const ifQuestionsInDb = () => Models.questions.findAll().then((result) => {
   if (result.length === 0) {
-    populateDb();
+    populateQuestionDb();
   } else {
     return 'Questions are already in database';
   }
 });
 
+const ifAnswersInDb = () => Models.correctanswers.findAll().then((result) => {
+  if (result.length === 0) {
+    populateAnswerDb();
+  } else {
+    return 'Answers are already in dataBase';
+  }
+});
+
+// const ifAnswersInDb = () => {
+//   const modelPromise = Models.correctanswers.findAll().then((result) => {
+//     if (result.length === 0) {
+//       populateAnswerDb();
+//     } else {
+//       return 'Answers are already in dataBase';
+//     }
+//   });
+//   return modelPromise;
+// };
+
 const handler = (request, response) => {
   // check if user exists,if exists return user
   // else create user and then return
   userLogin(request.payload.userName).then((value) => {
-    response({
-      statusCode: 201,
-      value,
+    console.log('here', value);
+    // check if questions in db,if there then return
+    // else populate db
+    ifQuestionsInDb().then((value1) => {
+      console.log('Value is', value1);
+      // check if ans there in db
+      // else populate ans
+      // get user answers
+      ifAnswersInDb().then((value2) => {
+        console.log('value in answer', value2);
+      });
     });
   });
-  // check if questions in db,if there then return
-  // else populate db
-  ifQuestionsInDb().then((value) => {
-    console.log('Value is', value);
-  });
-  // check if ans there in db
-  // else populate ans
-  // get user answers
 };
 
 const login = {
   method: 'POST',
   path: '/login',
   handler,
+  config: {
+    validate: {
+      payload: {
+        userName: Joi.string().alphanum().min(3).max(30)
+          .required(),
+      },
+    },
+  },
 };
 
 module.exports = login;
