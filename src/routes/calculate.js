@@ -1,7 +1,7 @@
 const Models = require('../../models');
 
 
-const calculateScore = (uid) => {
+const calculateScore = (userId) => {
   const questionIDtoAnswerMapping = {};
   let score = 0;
   const modelPromise = Models.correctanswers.findAll().then((qidWithCorrectAnswersArray) => {
@@ -11,7 +11,7 @@ const calculateScore = (uid) => {
   }).then(() => {
     Models.useranswers.findAll({
       where: {
-        userid: uid,
+        userid: userId,
       },
     }).then((userAnswerArray) => {
       userAnswerArray.forEach((userAnswer) => {
@@ -36,9 +36,10 @@ const leaderBoard = () => {
 };
 
 const handler = (request, response) => {
-  const { uid } = request.payload;
-  calculateScore(uid);
-  leaderBoard();
+  const { userId } = request.payload;
+  calculateScore(userId).then(() => {
+    leaderBoard();
+  });
 };
 
 const addUserAnswer = {

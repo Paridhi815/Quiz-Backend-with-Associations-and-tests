@@ -5,7 +5,7 @@ const calculateScore = (uid) => {
   const modelPromise = Models.correctanswers.findAll().then((correctAnswerArray) => {
     Models.useranswers.findAll({
       where: {
-        userid: uid,
+        userId: uid,
       },
     }).then((userAnswerArray) => {
       let score = 0;

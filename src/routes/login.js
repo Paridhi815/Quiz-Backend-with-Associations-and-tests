@@ -118,21 +118,21 @@ const handler = (request, response) => {
   // check if user exists,if exists return user
   // else create user and then return
   userLogin(request.payload.userName).then((value) => {
-    console.log('here', value);
+    // console.log('here', value);
     // check if questions in db,if there then return
     // else populate db
-    ifQuestionsInDb().then((value1) => {
-      console.log('Value is', value1);
+    ifQuestionsInDb().then((questions) => {
+    //   console.log('Value is', value1);
       // check if ans there in db
       // else populate ans
       ifAnswersInDb().then((value2) => {
-        console.log('value in answer', value2);
-        ifUserAnswersInDb(request.payload.userNam).then(() => {
+        // console.log('value in answer', value2);
+        ifUserAnswersInDb(request.payload.userName).then((persist) => {
         //   getQuestionsFromDb().then((questions) => {
           response({
-            value,
-            value1,
-            value2,
+            questions,
+            persist,
+            statusCode: 201,
           });
         //   });
         });

@@ -1,11 +1,16 @@
 const Models = require('../../models');
 
 const handler = (request, response) => {
-  const { userid, qid, userAnswer } = request.payload;
+  const { userId, questionId, userAnswer } = request.payload;
   Models.useranswers.findOrCreate({
     where: {
-      qid,
-      userid,
+      questionId,
+      userId,
+    },
+    defaults: {
+      userAnswer,
+      questionId,
+      userId,
     },
   }).then((result) => {
     const [userAnswers, isCreated] = result;
@@ -14,12 +19,12 @@ const handler = (request, response) => {
     }
     Models.useranswers.update({
       userAnswer,
-      qid,
-      userid,
+      questionId,
+      userId,
     }, {
       where: {
-        qid,
-        userid,
+        questionId,
+        userId,
       },
     });
   });
