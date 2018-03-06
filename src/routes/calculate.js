@@ -6,20 +6,23 @@ const calculateScore = (userId) => {
   let score = 0;
   const modelPromise = Models.correctanswers.findAll().then((qidWithCorrectAnswersArray) => {
     qidWithCorrectAnswersArray.forEach((qidWithCorrectAnswers) => {
-      questionIDtoAnswerMapping[qidWithCorrectAnswers.qid] = qidWithCorrectAnswers.correctanswer;
+      questionIDtoAnswerMapping[qidWithCorrectAnswers.questionId] = qidWithCorrectAnswers.correctanswer;
     });
   }).then(() => {
-    Models.useranswers.findAll({
+    return Models.useranswers.findAll({
       where: {
-        userid: userId,
+        userId,
       },
     }).then((userAnswerArray) => {
       userAnswerArray.forEach((userAnswer) => {
-        if (userAnswer.userAnswer === questionIDtoAnswerMapping[userAnswer.qid]) {
+        if (userAnswer.userAnswer === questionIDtoAnswerMapping[userAnswer.questionId]) {
           score += 1;
         }
       });
-      return score;
+      return Models.scores.create({
+        userId,
+        score,
+      });
     });
   });
   return modelPromise;
@@ -37,8 +40,14 @@ const leaderBoard = () => {
 
 const handler = (request, response) => {
   const { userId } = request.payload;
-  calculateScore(userId).then(() => {
-    leaderBoard();
+  calculateScore(userId).then((scores) => {
+    leaderBoard().then((leaderBoardValue) => {
+      response({
+        userId,
+        scores,
+        leaderBoardValue,
+      });
+    });
   });
 };
 
