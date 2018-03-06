@@ -58,7 +58,7 @@ const populateAnswerDb = () => {
       promiseArray.push(correctAnswerPromise);
       questionIdArray.push(question.questionId);
     });
-    Promise.all(promiseArray).then((result) => {
+    return Promise.all(promiseArray).then((result) => {
       for (let i = 0; i < result.length; i += 1) {
         const answer = JSON.parse(result[i]);
         const questionId = questionIdArray[i];
@@ -67,7 +67,7 @@ const populateAnswerDb = () => {
           correctanswer: answer.answer,
         });
       }
-      Models.correctanswers.bulkCreate(questionWithnswer);
+      return Models.correctanswers.bulkCreate(questionWithnswer);
     });
     // });
   });
@@ -84,10 +84,9 @@ const ifQuestionsInDb = () => Models.questions.findAll().then((result) => {
 
 const ifAnswersInDb = () => Models.correctanswers.findAll().then((result) => {
   if (result.length === 0) {
-    populateAnswerDb();
-  } else {
-    return 'Answers are already in dataBase';
+    return populateAnswerDb();
   }
+  return 'Answers are already in dataBase';
 });
 
 // const ifUserAnsInDb = () => {
@@ -99,18 +98,17 @@ const ifAnswersInDb = () => Models.correctanswers.findAll().then((result) => {
 //     }
 //   });
 // };
-// const ifAnswersInDb = (userName) => {
-//   const modelPromise = Models.users.findAll({
-//     where: {
-//       userName,
-//     },
-//     include: [{
-//       model: Models.useranswers,
-//       as: 'answers',
-//     }],
-//   }).then(res => res);
-//   return modelPromise;
-// };
+const ifUserAnswersInDb = (userName) => {
+  const modelPromise = Models.users.findAll({
+    where: {
+      userName,
+    },
+    include: [{
+      model: Models.useranswers,
+    }],
+  }).then(res => res);
+  return modelPromise;
+};
 
 const handler = (request, response) => {
   // check if user exists,if exists return user
@@ -119,12 +117,19 @@ const handler = (request, response) => {
     console.log('here', value);
     // check if questions in db,if there then return
     // else populate db
-    return ifQuestionsInDb().then((value1) => {
+    ifQuestionsInDb().then((value1) => {
       console.log('Value is', value1);
       // check if ans there in db
       // else populate ans
-      return ifAnswersInDb().then((value2) => {
+      ifAnswersInDb().then((value2) => {
         console.log('value in answer', value2);
+        ifUserAnswersInDb(request.payload.userNam).then(() => {
+          response({
+            value,
+            value1,
+            value2,
+          });
+        });
       });
     });
   });
