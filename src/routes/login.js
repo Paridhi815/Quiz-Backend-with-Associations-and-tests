@@ -74,19 +74,23 @@ const populateAnswerDb = () => {
   return modelPromise;
 };
 
+const getQuestionsFromDb = () => Models.questions.findAll();
 
 const ifQuestionsInDb = () => Models.questions.findAll().then((result) => {
   if (result.length === 0) {
-    return populateQuestionDb();
+    return populateQuestionDb().then(() => getQuestionsFromDb());
   }
-  return 'Questions are already in database';
+  return getQuestionsFromDb();
 });
+
+
+const getAnswersFromDb = () => Models.correctanswers.findAll();
 
 const ifAnswersInDb = () => Models.correctanswers.findAll().then((result) => {
   if (result.length === 0) {
-    return populateAnswerDb();
+    return populateAnswerDb().then(() => getAnswersFromDb());
   }
-  return 'Answers are already in dataBase';
+  return getAnswersFromDb();
 });
 
 // const ifUserAnsInDb = () => {
@@ -124,11 +128,13 @@ const handler = (request, response) => {
       ifAnswersInDb().then((value2) => {
         console.log('value in answer', value2);
         ifUserAnswersInDb(request.payload.userNam).then(() => {
+        //   getQuestionsFromDb().then((questions) => {
           response({
             value,
             value1,
             value2,
           });
+        //   });
         });
       });
     });
