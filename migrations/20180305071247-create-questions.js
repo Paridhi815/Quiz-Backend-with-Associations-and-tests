@@ -11,7 +11,7 @@ module.exports = {
     questionText: {
       type: Sequelize.STRING,
     },
-    qid: {
+    questionId: {
       type: Sequelize.INTEGER,
       unique: true,
     },

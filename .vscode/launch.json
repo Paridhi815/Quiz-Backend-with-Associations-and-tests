@@ -7,7 +7,7 @@
 {
     "type": "node",
     "request": "launch",
-    "name": "Mocha Tests",
+    "name": "Jest Tests",
     "program": "${workspaceFolder}/node_modules/.bin/jest",
     "args": [
     ],

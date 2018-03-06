@@ -14,7 +14,7 @@ const userLogin = (userName) => {
       userName,
     },
   }).then((userExists) => {
-    // console.log(userExists, 'EXISTS');
+    console.log(userExists, 'EXISTS');
     const [user, isCreated] = userExists;
     if (isCreated) {
       return 'New User Is Created';
@@ -26,13 +26,16 @@ const userLogin = (userName) => {
 
 const populateQuestionDb = () => {
   const requestPromise = rp(url1).then((result1) => {
+    // const obj = {};
     const questions = JSON.parse(result1);
+
     const questionsArray = [];
     questions.allQuestions.forEach((question) => {
       const optionObj = {};
       const questionWithOptionObject = {};
-      questionWithOptionObject.questionId = question.questionId;
+      questionWithOptionObject.qid = question.questionId;
       questionWithOptionObject.questionText = question.question;
+
       const questionKeys = Object.keys(question);
       questionKeys.forEach((key) => {
         if (key.startsWith('option')) {
@@ -42,7 +45,8 @@ const populateQuestionDb = () => {
       questionWithOptionObject.options = optionObj;
       questionsArray.push(questionWithOptionObject);
     });
-    return Models.questions.bulkCreate(questionsArray);
+    Models.questions.bulkCreate(questionsArray);
+    // console.log(allQuestionsWithOptions);
   });
   return requestPromise;
 };
@@ -53,17 +57,17 @@ const populateAnswerDb = () => {
     const questionIdArray = [];
     const questionWithnswer = [];
     allQuestions.forEach((question) => {
-      const url = `${url2}${question.questionId}`;
+      const url = `${url2}${question.qid}`;
       const correctAnswerPromise = rp(url);
       promiseArray.push(correctAnswerPromise);
-      questionIdArray.push(question.questionId);
+      questionIdArray.push(question.qid);
     });
     Promise.all(promiseArray).then((result) => {
       for (let i = 0; i < result.length; i += 1) {
         const answer = JSON.parse(result[i]);
         const questionId = questionIdArray[i];
         questionWithnswer.push({
-          questionId,
+          qid: questionId,
           correctanswer: answer.answer,
         });
       }
@@ -77,9 +81,10 @@ const populateAnswerDb = () => {
 
 const ifQuestionsInDb = () => Models.questions.findAll().then((result) => {
   if (result.length === 0) {
-    return populateQuestionDb();
+    populateQuestionDb();
+  } else {
+    return 'Questions are already in database';
   }
-  return 'Questions are already in database';
 });
 
 const ifAnswersInDb = () => Models.correctanswers.findAll().then((result) => {
@@ -90,15 +95,6 @@ const ifAnswersInDb = () => Models.correctanswers.findAll().then((result) => {
   }
 });
 
-// const ifUserAnsInDb = () => {
-//   Models.useranswers.findAll().then((result) => {
-//     if (result.length === 0) {
-//       console.log('User Is new and hasnt taken this quiz before');
-//     } else {
-//       fetchUserAnswers();
-//     }
-//   });
-// };
 // const ifAnswersInDb = (userName) => {
 //   const modelPromise = Models.users.findAll({
 //     where: {
@@ -111,6 +107,16 @@ const ifAnswersInDb = () => Models.correctanswers.findAll().then((result) => {
 //   }).then(res => res);
 //   return modelPromise;
 // };
+// const ifAnswersInDb = () => {
+//   const modelPromise = Models.correctanswers.findAll().then((result) => {
+//     if (result.length === 0) {
+//       populateAnswerDb();
+//     } else {
+//       return 'Answers are already in dataBase';
+//     }
+//   });
+//   return modelPromise;
+// };
 
 const handler = (request, response) => {
   // check if user exists,if exists return user
@@ -119,11 +125,11 @@ const handler = (request, response) => {
     console.log('here', value);
     // check if questions in db,if there then return
     // else populate db
-    return ifQuestionsInDb().then((value1) => {
+    ifQuestionsInDb().then((value1) => {
       console.log('Value is', value1);
       // check if ans there in db
       // else populate ans
-      return ifAnswersInDb().then((value2) => {
+      ifAnswersInDb().then((value2) => {
         console.log('value in answer', value2);
       });
     });

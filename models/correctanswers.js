@@ -2,12 +2,12 @@
 
 module.exports = (sequelize, DataTypes) => {
   const correctanswers = sequelize.define('correctanswers', {
-    qid: DataTypes.INTEGER,
+    questionId: DataTypes.INTEGER,
     correctanswer: DataTypes.STRING,
   }, {});
   correctanswers.associate = function (models) {
     // associations can be defined here
-    correctanswers.belongsTo(models.questions);
+    // correctanswers.belongsTo(models.questions, { foreignKey: 'qid', onDelete: 'CASCADE' });
   };
   return correctanswers;
 };

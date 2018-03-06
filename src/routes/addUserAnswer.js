@@ -2,18 +2,28 @@ const Models = require('../../models');
 
 const handler = (request, response) => {
   const { userid, qid, userAnswer } = request.payload;
-  Models.useranswers.upsert({
-    qid,
-    userid,
-    userAnswer,
-  }, {
+  Models.useranswers.findOrCreate({
     where: {
       qid,
       userid,
     },
   }).then((result) => {
-    response(result);
+    const [userAnswers, isCreated] = result;
+    if (isCreated) {
+      return 'New Answer Is Created';
+    }
+    Models.useranswers.update({
+      userAnswer,
+      qid,
+      userid,
+    }, {
+      where: {
+        qid,
+        userid,
+      },
+    });
   });
+  response('upserted');
 };
 
 const addUserAnswer = {

@@ -12,9 +12,6 @@ module.exports = {
       type: Sequelize.STRING,
       unique: true,
     },
-    score: {
-      type: Sequelize.INTEGER,
-    },
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE,

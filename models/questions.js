@@ -3,7 +3,7 @@
 module.exports = (sequelize, DataTypes) => {
   const questions = sequelize.define('questions', {
     questionText: DataTypes.STRING,
-    qid: { type: DataTypes.INTEGER, unique: true },
+    questionId: { type: DataTypes.INTEGER, unique: true },
     options: DataTypes.JSON,
   }, {});
   questions.associate = function (models) {

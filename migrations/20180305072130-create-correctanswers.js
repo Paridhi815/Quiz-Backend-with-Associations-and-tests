@@ -8,12 +8,8 @@ module.exports = {
       primaryKey: true,
       type: Sequelize.INTEGER,
     },
-    qid: {
+    questionId: {
       type: Sequelize.INTEGER,
-      references: {
-        model: 'questions',
-        key: 'qid',
-      },
     },
     correctanswer: {
       type: Sequelize.STRING,
