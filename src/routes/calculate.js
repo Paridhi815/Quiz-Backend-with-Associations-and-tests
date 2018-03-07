@@ -9,6 +9,7 @@ const calculateScore = (userId) => {
       questionIDtoAnswerMapping[qidWithCorrectAnswers.questionId] = qidWithCorrectAnswers.correctanswer;
     });
   }).then(() => {
+    console.log('Check');
     return Models.useranswers.findAll({
       where: {
         userId,
@@ -40,13 +41,25 @@ const leaderBoard = () => {
 
 const handler = (request, response) => {
   const { userId } = request.payload;
-  calculateScore(userId).then((scores) => {
-    leaderBoard().then((leaderBoardValue) => {
-      response({
+  Models.questions.count().then((numberOfQuestions) => {
+    Models.useranswers.count({
+      where: {
         userId,
-        scores,
-        leaderBoardValue,
-      });
+      },
+    }).then((numberOfUserAnswers) => {
+      if (numberOfQuestions === numberOfUserAnswers) {
+        calculateScore(userId).then((scores) => {
+          leaderBoard().then((leaderBoardValue) => {
+            response({
+              userId,
+              scores,
+              leaderBoardValue,
+            });
+          });
+        });
+      } else {
+        response('Please Answer All Questions First');
+      }
     });
   });
 };
