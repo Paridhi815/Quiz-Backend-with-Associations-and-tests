@@ -107,6 +107,7 @@ const handler = (request, response) => {
         ifUserAnswersInDb(request.payload.userName).then((persist) => {
         //   getQuestionsFromDb().then((questions) => {
           response({
+            value,
             questions,
             persist,
             statusCode: 201,

@@ -1,4 +1,7 @@
 const Models = require('../../models');
+const Sequelize = require('sequelize');
+
+const { Op } = Sequelize;
 
 
 const calculateScore = (userId) => {
@@ -20,23 +23,37 @@ const calculateScore = (userId) => {
           score += 1;
         }
       });
-      return Models.scores.create({
+      return Models.scores.upsert({
         userId,
         score,
-      });
+      }).then(() => score);
     });
   });
   return modelPromise;
 };
 
 const leaderBoard = () => {
-  const modelPromise = Models.scores.findAll({
+  const modelPromise = Models.users.findAll({
+    include: [{
+      model: Models.scores,
+      as: 'score',
+    }],
     order: [
-      ['score', 'DESC'],
+      [{ model: Models.scores }, 'score', 'DESC'],
     ],
-    raw: true,
-  }).then(result => (result.slice(0, 5)));
+    limit: 5,
+  }).then((result) => {
+    const res = result;
+    return result;
+  });
   return modelPromise;
+  // const modelPromise = Models.scores.findAll({
+  //   order: [
+  //     ['score', 'DESC'],
+  //   ],
+  //   raw: true,
+  // }).then(result => (result.slice(0, 5)));
+  // return modelPromise;
 };
 
 const handler = (request, response) => {

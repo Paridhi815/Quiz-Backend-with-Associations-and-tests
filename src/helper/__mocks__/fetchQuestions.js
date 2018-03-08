@@ -1,6 +1,5 @@
 const fetchQuestions = () => {
-  const data = {
-    allQuestions: [
+  const data = [
       {
         question: 'What is the capital of India',
         questionId: 12,
@@ -41,8 +40,7 @@ const fetchQuestions = () => {
         option3: 'Majuro',
         option4: 'Andorra la Vella',
       },
-    ],
-  };
+    ]
   return Promise.resolve(data);
 };
 

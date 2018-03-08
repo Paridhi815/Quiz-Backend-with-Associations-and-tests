@@ -2,7 +2,7 @@
 
 module.exports = (sequelize, DataTypes) => {
   const scores = sequelize.define('scores', {
-    userId: DataTypes.INTEGER,
+    userId: { type: DataTypes.INTEGER, unique: true },
     score: DataTypes.INTEGER,
   }, {});
   scores.associate = function (models) {
