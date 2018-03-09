@@ -1,9 +1,8 @@
 const Models = require('../../models');
-const rp = require('request-promise');
+// const rp = require('request-promise');
 const Joi = require('joi');
 const populateQuestionDb = require('../helper/populateQuestionDb');
-
-const url2 = 'https://5gj1qvkc5h.execute-api.us-east-1.amazonaws.com/dev/findAnswerById/';
+const populateAnswerDb = require('../helper/populateAnswerDb');
 
 
 const userLogin = (userName) => {
@@ -24,32 +23,31 @@ const userLogin = (userName) => {
   return modelPromise;
 };
 
-const populateAnswerDb = () => {
-  const modelPromise = Models.questions.findAll().then((allQuestions) => {
-    const promiseArray = [];
-    const questionIdArray = [];
-    const questionWithnswer = [];
-    allQuestions.forEach((question) => {
-      const url = `${url2}${question.questionId}`;
-      const correctAnswerPromise = rp(url);
-      promiseArray.push(correctAnswerPromise);
-      questionIdArray.push(question.questionId);
-    });
-    return Promise.all(promiseArray).then((result) => {
-      for (let i = 0; i < result.length; i += 1) {
-        const answer = JSON.parse(result[i]);
-        const questionId = questionIdArray[i];
-        questionWithnswer.push({
-          questionId,
-          correctanswer: answer.answer,
-        });
-      }
-      return Models.correctanswers.bulkCreate(questionWithnswer);
-    });
-    // });
-  });
-  return modelPromise;
-};
+// const populateAnswerDb = () => {
+//   const modelPromise = Models.questions.findAll().then((allQuestions) => {
+//     const promiseArray = [];
+//     const questionIdArray = [];
+//     const questionWithnswer = [];
+//     allQuestions.forEach((question) => {
+//       const url = `${url2}${question.questionId}`;
+//       const correctAnswerPromise = rp(url);
+//       promiseArray.push(correctAnswerPromise);
+//       questionIdArray.push(question.questionId);
+//     });
+//     return Promise.all(promiseArray).then((result) => {
+//       for (let i = 0; i < result.length; i += 1) {
+//         const answer = JSON.parse(result[i]);
+//         const questionId = questionIdArray[i];
+//         questionWithnswer.push({
+//           questionId,
+//           correctanswer: answer.answer,
+//         });
+//       }
+//       return Models.correctanswers.bulkCreate(questionWithnswer);
+//     });
+//   });
+//   return modelPromise;
+// };
 
 const getQuestionsFromDb = () => Models.questions.findAll();
 
@@ -105,7 +103,6 @@ const handler = (request, response) => {
       ifAnswersInDb().then((value2) => {
         // console.log('value in answer', value2);
         ifUserAnswersInDb(request.payload.userName).then((persist) => {
-        //   getQuestionsFromDb().then((questions) => {
           response({
             value,
             questions,
