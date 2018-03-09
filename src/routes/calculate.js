@@ -1,7 +1,7 @@
 const Models = require('../../models');
-const Sequelize = require('sequelize');
+// const Sequelize = require('sequelize');
 
-const { Op } = Sequelize;
+// const { Op } = Sequelize;
 
 
 const calculateScore = (userId) => {

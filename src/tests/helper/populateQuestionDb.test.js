@@ -5,7 +5,7 @@ jest.mock('../../helper/fetchQuestions');
 
 const populateQuestionDb = require('../../helper/populateQuestionDb');
 
-describe('Testing the hhelper function populate database with questions', () => {
+describe('Testing the helper function populate database with questions', () => {
   beforeAll((done) => {
     Models.questions.destroy({ cascade: true, truncate: true }).then(() => {
       console.log('BEFORE');
